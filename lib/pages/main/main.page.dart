@@ -16,6 +16,10 @@ class MainPage extends GetView<MainController> {
       endDrawerEnableOpenDragGesture: true,
       endDrawer: Obx(
         () => AppDrawer(
+          duration: controller.duration.value,
+          changeDurationCallback: (value) {
+            controller.duration.value = value;
+          },
           user: controller.user.value,
           isBackgroundLocalization: controller.isBackground.value,
           changeThemeCallback: controller.changeTheme,
@@ -60,7 +64,7 @@ class MainPage extends GetView<MainController> {
                 onRefresh: controller.fetchTasks,
               ),
               LocationRegister(
-                positionsList: controller.positions,
+                positionsList: controller.positions.value,
                 onRefresh: controller.fetchLocations,
               )
             ],
@@ -82,10 +86,22 @@ class LocationRegister extends StatelessWidget {
         child: ListView.builder(
           itemCount: positionsList.length,
           itemBuilder: (context, index) {
-            return Row(
-              children: [
-                Text(positionsList[index].registerTime.toString()),
-              ],
+            final position = positionsList[index];
+            final time = position.registerTime;
+            final localization =
+                "Latitude: ${position.latitude}\nLogitude: ${position.logitude}";
+            final stringTime =
+                "${time.day}/${time.month}/${time.year} - ${time.hour}:${time.minute}:${time.second}";
+            return ListTile(
+              leading: const CircleAvatar(
+                child: Icon(Icons.map),
+              ),
+              title: Text(
+                localization,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              subtitle: Text(stringTime),
+              trailing: const Icon(Icons.cancel),
             );
           },
         ));

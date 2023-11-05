@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -94,6 +95,8 @@ class BackGroundLocalizationService {
 
     Timer.periodic(duration, (timer) async {
       actualPosition = await usecase.execute();
+      log(actualPosition.toString());
+      log("Lat: ${actualPosition.latitude} Long: ${actualPosition.logitude}");
       if (service is AndroidServiceInstance) {
         if (await service.isForegroundService()) {
           service.setForegroundNotificationInfo(

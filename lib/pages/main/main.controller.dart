@@ -37,7 +37,7 @@ class MainController extends GetxController {
   static const isDarkModeKey = 'darkTheme';
   static const enabledBackgroundLocalizationKey = 'localization';
   final enabledDarkMode = true.obs;
-  final isBackground = false.obs;
+  final isBackground = true.obs;
   final enabledBackgroundService = false.obs;
 
   Future fetchTasks() async {
@@ -92,30 +92,28 @@ class MainController extends GetxController {
   }
 
   Future startService(bool start) async {
-    if (start) {
-      _backgroundLocalizationUsecase.execute(
+    await _backgroundLocalizationUsecase.execute(
+        scheduleDurationMinutes: duration.value.ceil(),
         isBackground: isBackground.value,
-      );
-    } else {
-      _backgroundLocalizationUsecase.execute(
-          isBackground: isBackground.value, stop: true);
-    }
+        stop: !start);
     enabledBackgroundService.value = start;
   }
 
+  Future _startService(bool background) async {
+    isBackground.value = !background;
+    await startService(false);
+    await _backgroundLocalizationUsecase.execute(
+        isBackground: background,
+        scheduleDurationMinutes: duration.value.ceil());
+    enabledBackgroundService.value = background;
+  }
+
   Future startForegroundService() async {
-    await BackGroundLocalizationUsecase()
-        .execute(isBackground: false, scheduleDurationMinutes: 1);
+    _startService(false);
   }
 
   Future startBackgroundService() async {
-    await BackGroundLocalizationUsecase()
-        .execute(isBackground: true, scheduleDurationMinutes: 1);
-    if (enabledBackgroundService.value) {
-      enabledBackgroundService.value = false;
-    } else {
-      enabledBackgroundService.value = true;
-    }
+    _startService(true);
   }
 
   Future fetchLocations() async {

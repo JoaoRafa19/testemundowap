@@ -14,15 +14,19 @@ class AppDrawer extends StatelessWidget {
       this.onStartService,
       this.onStartForeground,
       this.onStartBackGround,
-      required this.isBackgroundLocalization});
+      required this.isBackgroundLocalization,
+      required this.duration,
+      this.changeDurationCallback});
 
   final User? user;
 
   final bool isDarkMode;
   final bool enabledBackgroundLocalization;
   final bool isBackgroundLocalization;
+  final double duration;
 
   final FutureOr<void> Function(bool value)? changeThemeCallback;
+  final FutureOr<void> Function(double value)? changeDurationCallback;
 
   final FutureOr<void> Function(bool value)? onStartService;
   final FutureOr<void> Function()? onStartForeground;
@@ -57,21 +61,21 @@ class AppDrawer extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Background"),
+                const Text("Foreground"),
                 Switch(
                     value: isBackgroundLocalization,
                     onChanged: enabledBackgroundLocalization
                         ? (isBackground) {
                             if (isBackgroundLocalization &&
                                 enabledBackgroundLocalization) {
-                              onStartForeground?.call();
+                              onStartBackGround?.call();
                             } else if (!isBackgroundLocalization &&
                                 enabledBackgroundLocalization) {
                               onStartForeground?.call();
                             }
                           }
                         : null),
-                const Text("Foreground"),
+                const Text("Background"),
               ],
             ),
           ),
@@ -94,6 +98,24 @@ class AppDrawer extends StatelessWidget {
                 Switch(
                     value: enabledBackgroundLocalization,
                     onChanged: onStartService)
+              ],
+            ),
+          ),
+          Padding(
+            padding: switchRowPadding,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Intervalo:"),
+                Slider(
+                  onChanged: changeDurationCallback,
+                  value: duration,
+                  divisions: 58,
+                  max: 59.0,
+                  min: 1.0,
+                  label: duration.toString(),
+                  semanticFormatterCallback: (value) => "$value min",
+                ),
               ],
             ),
           ),
