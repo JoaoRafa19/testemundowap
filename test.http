@@ -1,0 +1,9 @@
+###
+POST https://api-tr.traderesult.app/TestMobile/auth
+Content-Type: application/json
+Accept: application/json
+
+{
+    "user":"teste.mobile",
+    "password": "1234"
+}
