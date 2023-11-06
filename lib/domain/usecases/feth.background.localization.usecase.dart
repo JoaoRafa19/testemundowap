@@ -6,7 +6,7 @@ import 'package:testemundowap/domain/service/background.localization.service.dar
 class BackGroundLocalizationUsecase {
   BackGroundLocalizationUsecase();
 
-  Future<void> execute(
+  Future<bool> execute(
       {bool? isBackground, bool? stop, int? scheduleDurationMinutes}) async {
     try {
       await PermissionHander.handlePermissions();
@@ -15,20 +15,23 @@ class BackGroundLocalizationUsecase {
       if (stop == true) {
         if (await service.isRunning()) {
           FlutterBackgroundService().invoke('stopService');
+          return false;
         }
       } else {
-        await BackGroundLocalizationService.initializeService(
-            scheduleDuration: scheduleDurationMinutes);
-        FlutterBackgroundService().invoke('startService');
+        if (await service.isRunning() == false) {
+          await BackGroundLocalizationService.initializeService(
+              scheduleDuration: scheduleDurationMinutes);
+        }
       }
 
-      if (isBackground == null || isBackground) {
+      if (await service.isRunning()) {
         FlutterBackgroundService().invoke('setAsBackgound');
-      } else {
-        FlutterBackgroundService().invoke('setAsForeground');
+        return true;
       }
+      return false;
     } catch (e) {
       log(e.toString());
+      return false;
     }
   }
 }

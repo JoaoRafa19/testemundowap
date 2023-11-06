@@ -31,9 +31,8 @@ class BackGroundLocalizationService {
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       notificationChannelId, // id
       notificationChannelId, // title
-      description:
-          'This channel is used for important notifications.', // description
-      importance: Importance.low, // importance must be at low or higher level
+      description: 'Notification channel',
+      importance: Importance.low,
     );
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -43,25 +42,24 @@ class BackGroundLocalizationService {
         ?.createNotificationChannel(channel);
 
     await service.configure(
-        iosConfiguration: IosConfiguration(
-          onBackground: (i) async {
-            await onStart(i);
-            return true;
-          },
-          onForeground: onStart,
-        ),
-        androidConfiguration: AndroidConfiguration(
-          onStart: onStart,
-          // auto start service
-          autoStart: true,
-          isForegroundMode: true,
-
-          notificationChannelId:
-              notificationChannelId, // this must match with notification channel you created above.
-          initialNotificationTitle: 'AWESOME SERVICE',
-          initialNotificationContent: 'Initializing',
-          foregroundServiceNotificationId: notificationId,
-        ));
+      iosConfiguration: IosConfiguration(
+        onBackground: (i) async {
+          await onStart(i);
+          return true;
+        },
+        onForeground: onStart,
+      ),
+      androidConfiguration: AndroidConfiguration(
+        onStart: onStart,
+        // auto start service
+        autoStart: true,
+        isForegroundMode: true,
+        notificationChannelId: notificationChannelId,
+        initialNotificationTitle: 'Notificação',
+        initialNotificationContent: 'Inicializando',
+        foregroundServiceNotificationId: notificationId,
+      ),
+    );
   }
 
   @pragma('vm:entry-point')
@@ -103,18 +101,18 @@ class BackGroundLocalizationService {
             title: 'Pegando localização',
             content:
                 "\nLocalização atual: LAT:${actualPosition.latitude}\tLONG:${actualPosition.logitude}");
-        flutterLocalNotificationsPlugin.show(
-          notificationId,
-          "Pegando localização",
-          '\nLocalização atual: LAT:${actualPosition.latitude}\tLONG:${actualPosition.logitude}',
-          const NotificationDetails(
-            android: AndroidNotificationDetails(
-              notificationChannelId,
-              notificationChannelId,
-              ongoing: true,
-            ),
-          ),
-        );
+        // flutterLocalNotificationsPlugin.show(
+        //   notificationId,
+        //   "Pegando localização",
+        //   '\nLocalização atual: LAT:${actualPosition.latitude}\tLONG:${actualPosition.logitude}',
+        //   const NotificationDetails(
+        //     android: AndroidNotificationDetails(
+        //       notificationChannelId,
+        //       notificationChannelId,
+        //       ongoing: true,
+        //     ),
+        //   ),
+        // );
       }
       log("Lat: ${actualPosition.latitude} Long: ${actualPosition.logitude}");
       service.invoke('update');

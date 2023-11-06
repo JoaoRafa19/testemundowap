@@ -24,7 +24,7 @@ void main() async {
     }
   });
 
-  await BackGroundLocalizationService.initializeService(scheduleDuration: 1);
+  await BackGroundLocalizationService.initializeService(scheduleDuration: 15);
 
   runApp(const App());
 }

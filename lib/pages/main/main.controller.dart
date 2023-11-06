@@ -6,6 +6,7 @@ import 'package:testemundowap/core/helpers/exceptions.dart';
 import 'package:testemundowap/domain/entity/position.entity.dart';
 import 'package:testemundowap/domain/entity/task.entity.dart';
 import 'package:testemundowap/domain/entity/user.entity.dart';
+import 'package:testemundowap/domain/usecases/fetch.backgroundstate.usecase.dart';
 import 'package:testemundowap/domain/usecases/fetch.locations.usecase.dart';
 import 'package:testemundowap/domain/usecases/fetch.personal.information.usecase.dart';
 import 'package:testemundowap/domain/usecases/fetch.tasks.usecase.dart';
@@ -19,6 +20,7 @@ class MainController extends GetxController {
       FetchPersonalInformationUsecase(RepositoryFactory());
   final _backgroundLocalizationUsecase = BackGroundLocalizationUsecase();
   final _fetchLocationsUsecase = FetchLocationsUsecase(RepositoryFactory());
+  final _backgroundStateUecase = BackgroundStateUsecase();
   @override
   void onInit() {
     fetchTasks();
@@ -37,7 +39,7 @@ class MainController extends GetxController {
   static const isDarkModeKey = 'darkTheme';
   static const enabledBackgroundLocalizationKey = 'localization';
   final enabledDarkMode = true.obs;
-  final isBackground = true.obs;
+  final isBackground = false.obs;
   final enabledBackgroundService = false.obs;
 
   Future fetchTasks() async {
@@ -74,6 +76,9 @@ class MainController extends GetxController {
     try {
       final sp = await SharedPreferences.getInstance();
       enabledDarkMode.value = sp.getBool(isDarkModeKey) ?? true;
+      final isBackgroundServiceRunning = await _backgroundStateUecase.execute();
+      isBackground.value = isBackgroundServiceRunning;
+      enabledBackgroundService.value = isBackgroundServiceRunning;
     } catch (e) {
       Get.showSnackbar(const GetSnackBar(
         title: 'Error',
@@ -93,15 +98,16 @@ class MainController extends GetxController {
 
   Future startService(bool start) async {
     try {
+      bool state;
       if (start) {
-        isBackground.value = true;
-        await _backgroundLocalizationUsecase.execute(
+        state = await _backgroundLocalizationUsecase.execute(
             isBackground: true, scheduleDurationMinutes: duration.value.ceil());
-        enabledBackgroundService.value = true;
       } else {
-        await _backgroundLocalizationUsecase.execute(stop: true);
-        enabledBackgroundService.value = false;
+        state = await _backgroundLocalizationUsecase.execute(
+            stop: isBackground.value);
       }
+      isBackground.value = state;
+      enabledBackgroundService.value = state;
     } on InternalException catch (e) {
       Get.showSnackbar(GetSnackBar(
         title: 'Error',

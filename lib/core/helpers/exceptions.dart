@@ -34,3 +34,7 @@ class SaveLocalizationException extends InternalException {
 class GetUserInformationException extends InternalException {
   GetUserInformationException({required super.message});
 }
+
+class GetBackgroundError extends InternalException {
+  GetBackgroundError({required super.message});
+}
