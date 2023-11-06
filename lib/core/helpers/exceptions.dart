@@ -14,6 +14,11 @@ class GatewayException extends InternalException {
 class FetchTasksException extends InternalException {
   FetchTasksException({required super.message});
 }
+
+class SaveTasksException extends InternalException {
+  SaveTasksException({required super.message});
+}
+
 class FetchLocationsException extends InternalException {
   FetchLocationsException({required super.message});
 }

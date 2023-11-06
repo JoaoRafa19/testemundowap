@@ -1,5 +1,5 @@
+import 'dart:developer';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:testemundowap/core/helpers/exceptions.dart';
 import 'package:testemundowap/core/helpers/permissions.helper.dart';
 import 'package:testemundowap/domain/service/background.localization.service.dart';
 
@@ -9,7 +9,7 @@ class BackGroundLocalizationUsecase {
   Future<void> execute(
       {bool? isBackground, bool? stop, int? scheduleDurationMinutes}) async {
     try {
-      PermissionHander.handlePermissions();
+      await PermissionHander.handlePermissions();
       final service = FlutterBackgroundService();
 
       if (stop == true) {
@@ -28,8 +28,7 @@ class BackGroundLocalizationUsecase {
         FlutterBackgroundService().invoke('setAsForeground');
       }
     } catch (e) {
-      throw LocationException(
-          message: "Impossibilitado de iniciar localização em segundo plano");
+      log(e.toString());
     }
   }
 }

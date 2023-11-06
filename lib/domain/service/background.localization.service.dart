@@ -15,48 +15,62 @@ class BackGroundLocalizationService {
   static const notificationChannelId = 'foreground_localization';
   static final usecase =
       SaveLocalizationUsecase(ServiceFactory(), RepositoryFactory());
-  static Duration duration = const Duration(minutes: 1);
+  static Duration duration = const Duration(minutes: 5);
   static PositionEntity actualPosition =
       PositionEntity(logitude: 0, latitude: 0, registerTime: DateTime.now());
 
   static const notificationId = 888;
 
+  static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   static Future<void> initializeService({int? scheduleDuration}) async {
     final service = FlutterBackgroundService();
-    duration = Duration(minutes: scheduleDuration ?? 1);
-    const chanel = AndroidNotificationChannel(
-      notificationChannelId,
-      'Localização em segundo plano',
-      showBadge: true,
-      ledColor: Colors.green,
-      enableVibration: false,
-      playSound: false,
-      enableLights: false,
-      description: 'Sua localização está sendo salva em segundo plano',
-      importance: Importance.max,
-    );
-    final FlutterLocalNotificationsPlugin localNotificationPlugin =
-        FlutterLocalNotificationsPlugin();
+    duration = Duration(minutes: scheduleDuration ?? 5);
 
-    await localNotificationPlugin
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      notificationChannelId, // id
+      'MY FOREGROUND SERVICE', // title
+      description:
+          'This channel is used for important notifications.', // description
+      importance: Importance.low, // importance must be at low or higher level
+    );
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+    await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(chanel);
+        ?.createNotificationChannel(channel);
 
     await service.configure(
         iosConfiguration: IosConfiguration(
+          onBackground: (i) async {
+            await onStart(i);
+            return true;
+          },
           onForeground: onStart,
-          onBackground: onIosBackground,
         ),
         androidConfiguration: AndroidConfiguration(
           onStart: onStart,
-          isForegroundMode: false,
+          // auto start service
+          autoStart: true,
+          isForegroundMode: true,
+
+          notificationChannelId:
+              notificationChannelId, // this must match with notification channel you created above.
+          initialNotificationTitle: 'AWESOME SERVICE',
+          initialNotificationContent: 'Initializing',
           foregroundServiceNotificationId: notificationId,
-          notificationChannelId: notificationChannelId,
-          initialNotificationContent:
-              'Sua localização está sendo salva em segundo plano.',
-          initialNotificationTitle: 'Localização em segundo plano',
         ));
+
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.show(notificationId, "Pegando localização",
+            "Pegando localização em segundo plano!",
+            notificationDetails: const AndroidNotificationDetails(
+              notificationChannelId,
+              notificationChannelId,
+            ));
   }
 
   @pragma('vm:entry-point')
@@ -72,14 +86,16 @@ class BackGroundLocalizationService {
   ) async {
     DartPluginRegistrant.ensureInitialized();
 
-    if (service is AndroidServiceInstance) {
-      service.on('setAsForeground').listen((event) {
-        service.setAsForegroundService();
+    service.on('setAsForeground').listen((event) {
+      service.invoke("setForegroundMode", {
+        'value': true,
       });
-      service.on('setAsBackgound').listen((event) {
-        service.setAsBackgroundService();
+    });
+    service.on('setAsBackgound').listen((event) {
+      service.invoke("setForegroundMode", {
+        'value': false,
       });
-    }
+    });
     service.on('stopService').listen((event) {
       service.stopSelf();
     });
@@ -95,16 +111,25 @@ class BackGroundLocalizationService {
 
     Timer.periodic(duration, (timer) async {
       actualPosition = await usecase.execute();
-      log(actualPosition.toString());
-      log("Lat: ${actualPosition.latitude} Long: ${actualPosition.logitude}");
       if (service is AndroidServiceInstance) {
         if (await service.isForegroundService()) {
-          service.setForegroundNotificationInfo(
-              title: 'Pegando localização',
-              content:
-                  "Localização atual: LAT:${actualPosition.latitude.toStringAsFixed(3)}\tLONG:${actualPosition.logitude.toStringAsFixed(3)}");
+          await flutterLocalNotificationsPlugin.show(
+            notificationId,
+            "Pegando localização",
+            '\nLocalização atual: LAT:${actualPosition.latitude}\tLONG:${actualPosition.logitude}',
+            const NotificationDetails(
+              android: AndroidNotificationDetails(
+                notificationChannelId,
+                'MY FOREGROUND SERVICE',
+                icon: 'ic_bg_service_small',
+                ongoing: true,
+              ),
+            ),
+          );
         }
       }
+      log(actualPosition.toString());
+      log("Lat: ${actualPosition.latitude} Long: ${actualPosition.logitude}");
       service.invoke('update');
     });
   }

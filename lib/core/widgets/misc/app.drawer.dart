@@ -61,29 +61,6 @@ class AppDrawer extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Foreground"),
-                Switch(
-                    value: isBackgroundLocalization,
-                    onChanged: enabledBackgroundLocalization
-                        ? (isBackground) {
-                            if (isBackgroundLocalization &&
-                                enabledBackgroundLocalization) {
-                              onStartBackGround?.call();
-                            } else if (!isBackgroundLocalization &&
-                                enabledBackgroundLocalization) {
-                              onStartForeground?.call();
-                            }
-                          }
-                        : null),
-                const Text("Background"),
-              ],
-            ),
-          ),
-          Padding(
-            padding: switchRowPadding,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
                 const Text("Dark Theme"),
                 Switch(value: isDarkMode, onChanged: changeThemeCallback)
               ],
@@ -94,7 +71,7 @@ class AppDrawer extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("Background Localization"),
+                const Text("Ativar localização em background"),
                 Switch(
                     value: enabledBackgroundLocalization,
                     onChanged: onStartService)

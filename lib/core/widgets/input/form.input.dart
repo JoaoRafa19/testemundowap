@@ -1,17 +1,20 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:testemundowap/core/theme/core.theme.colors.dart';
 
-class FormImput extends StatelessWidget {
-  const FormImput(
+class FormInput extends StatelessWidget {
+  const FormInput(
       {super.key,
       this.inputName,
       this.controller,
       this.obscuredText = false,
-      this.validator});
+      this.validator,
+      this.isPriceInput});
   final String? inputName;
   final TextEditingController? controller;
   final bool obscuredText;
+  final bool? isPriceInput;
   final String? Function(String?)? validator;
 
   @override
@@ -23,6 +26,10 @@ class FormImput extends StatelessWidget {
         controller: controller,
         validator: validator,
         obscureText: obscuredText,
+        inputFormatters: isPriceInput == true
+            ? [CurrencyTextInputFormatter(locale: "pt-BR")]
+            : null,
+        keyboardType: isPriceInput == true ? TextInputType.number : null,
         decoration: InputDecoration(
           focusColor: AppColors.bodyBlack,
           labelStyle: Theme.of(context).textTheme.bodyMedium,

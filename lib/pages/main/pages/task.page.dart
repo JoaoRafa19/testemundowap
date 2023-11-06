@@ -15,21 +15,17 @@ class TasksPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Obx(() {
-        return taskList.isEmpty
-            ? const Center(
-                child: Text('Lista de tarefas vazia'),
-              )
-            : RefreshIndicator(
-                backgroundColor: AppColors.lightGrey,
-                color: AppColors.white,
-                onRefresh: onRefresh,
-                child: ListView.builder(
-                  itemCount: taskList.length,
-                  itemBuilder: (context, i) {
-                    return CheckBoxTaskField(task: taskList[i]);
-                  },
-                ),
-              );
+        return RefreshIndicator(
+          backgroundColor: AppColors.lightGrey,
+          color: AppColors.white,
+          onRefresh: onRefresh,
+          child: ListView.builder(
+            itemCount: taskList.length,
+            itemBuilder: (context, i) {
+              return CheckBoxTaskField(task: taskList[i]);
+            },
+          ),
+        );
       }),
     );
   }

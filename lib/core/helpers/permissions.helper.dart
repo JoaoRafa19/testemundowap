@@ -1,3 +1,4 @@
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionHander {
@@ -6,7 +7,11 @@ class PermissionHander {
       if (value) {
         Permission.notification.request();
         Permission.location.isDenied
-            .then((value) => Permission.location.request());
+            .then((value) => Permission.location.request())
+            .then((value) => AndroidFlutterLocalNotificationsPlugin()
+                .requestExactAlarmsPermission()
+                .then((value) => AndroidFlutterLocalNotificationsPlugin()
+                    .requestNotificationsPermission()));
       }
     });
   }

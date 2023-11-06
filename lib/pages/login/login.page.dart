@@ -34,7 +34,7 @@ class LoginPage extends GetView<LoginController> {
             const Spacer(
               flex: 1,
             ),
-            FormImput(
+            FormInput(
               inputName: 'e-mail',
               controller: emailController,
               validator: (value) {
@@ -47,7 +47,7 @@ class LoginPage extends GetView<LoginController> {
                 }
               },
             ),
-            FormImput(
+            FormInput(
               inputName: 'senha',
               controller: passwordController,
               obscuredText: true,

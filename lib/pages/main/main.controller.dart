@@ -92,28 +92,27 @@ class MainController extends GetxController {
   }
 
   Future startService(bool start) async {
-    await _backgroundLocalizationUsecase.execute(
-        scheduleDurationMinutes: duration.value.ceil(),
-        isBackground: isBackground.value,
-        stop: !start);
-    enabledBackgroundService.value = start;
-  }
-
-  Future _startService(bool background) async {
-    isBackground.value = !background;
-    await startService(false);
-    await _backgroundLocalizationUsecase.execute(
-        isBackground: background,
-        scheduleDurationMinutes: duration.value.ceil());
-    enabledBackgroundService.value = background;
-  }
-
-  Future startForegroundService() async {
-    _startService(false);
-  }
-
-  Future startBackgroundService() async {
-    _startService(true);
+    try {
+      if (start) {
+        isBackground.value = true;
+        await _backgroundLocalizationUsecase.execute(
+            isBackground: true, scheduleDurationMinutes: duration.value.ceil());
+        enabledBackgroundService.value = true;
+      } else {
+        await _backgroundLocalizationUsecase.execute(stop: true);
+        enabledBackgroundService.value = false;
+      }
+    } on InternalException catch (e) {
+      Get.showSnackbar(GetSnackBar(
+        title: 'Error',
+        message: e.message,
+      ));
+    } catch (e) {
+      Get.showSnackbar(const GetSnackBar(
+        title: 'Error',
+        message: ' Erro inesperado',
+      ));
+    }
   }
 
   Future fetchLocations() async {
